@@ -1,17 +1,17 @@
 # app.py
 
 import streamlit as st
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 from PIL import Image
 
-# Load model and processor
+# Load model and extractor
 @st.cache_resource
 def load_model():
-    processor = AutoImageProcessor.from_pretrained("nateraw/plant-disease-classification")
+    extractor = AutoFeatureExtractor.from_pretrained("nateraw/plant-disease-classification")
     model = AutoModelForImageClassification.from_pretrained("nateraw/plant-disease-classification")
-    return processor, model
+    return extractor, model
 
-processor, model = load_model()
+extractor, model = load_model()
 
 # Treatment advice dictionary (expand as needed)
 treatment_dict = {
@@ -32,7 +32,7 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Leaf Image", use_column_width=True)
     
     # Predict disease
-    inputs = processor(images=image, return_tensors="pt")
+    inputs = extractor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     predicted_class_idx = outputs.logits.argmax(-1).item()
     disease_name = model.config.id2label[predicted_class_idx]
