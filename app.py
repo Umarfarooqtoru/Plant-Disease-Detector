@@ -7,17 +7,16 @@ from PIL import Image
 # Load pipeline
 @st.cache_resource
 def load_pipeline():
-    classifier = pipeline("image-classification", model="nateraw/plant-disease-classification")
+    classifier = pipeline("image-classification", model="akhaliq/plant-disease-model")
     return classifier
 
 classifier = load_pipeline()
 
-# Treatment advice dictionary (expand as needed)
+# Treatment advice dictionary (sample)
 treatment_dict = {
     "Tomato___Late_blight": "Use fungicides containing chlorothalonil or copper-based sprays.",
-    "Tomato___Bacterial_spot": "Remove infected leaves. Apply copper-based bactericides.",
     "Tomato___Leaf_Mold": "Improve air circulation. Use chlorothalonil fungicide.",
-    # Add more diseases with treatments here
+    # Add actual class labels from model outputs here
 }
 
 # Streamlit UI
