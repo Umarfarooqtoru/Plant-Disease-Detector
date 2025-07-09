@@ -1,4 +1,7 @@
 import streamlit as st
+from huggingface_hub import login
+
+login(st.secrets["HF_TOKEN"])
 import requests
 
 # Streamlit UI
