@@ -1,17 +1,16 @@
 # app.py
 
 import streamlit as st
-from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+from transformers import pipeline
 from PIL import Image
 
-# Load model and extractor
+# Load pipeline
 @st.cache_resource
-def load_model():
-    extractor = AutoFeatureExtractor.from_pretrained("nateraw/plant-disease-classification")
-    model = AutoModelForImageClassification.from_pretrained("nateraw/plant-disease-classification")
-    return extractor, model
+def load_pipeline():
+    classifier = pipeline("image-classification", model="nateraw/plant-disease-classification")
+    return classifier
 
-extractor, model = load_model()
+classifier = load_pipeline()
 
 # Treatment advice dictionary (expand as needed)
 treatment_dict = {
@@ -32,11 +31,13 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Leaf Image", use_column_width=True)
     
     # Predict disease
-    inputs = extractor(images=image, return_tensors="pt")
-    outputs = model(**inputs)
-    predicted_class_idx = outputs.logits.argmax(-1).item()
-    disease_name = model.config.id2label[predicted_class_idx]
-    
-    st.success(f"**Predicted Disease:** {disease_name}")
-    treatment = treatment_dict.get(disease_name, "No treatment advice available for this disease.")
-    st.info(f"**Treatment Advice:** {treatment}")
+    result = classifier(image)
+    if len(result) > 0:
+        disease_name = result[0]['label']
+        confidence = result[0]['score']
+        
+        st.success(f"**Predicted Disease:** {disease_name} ({confidence:.2f} confidence)")
+        treatment = treatment_dict.get(disease_name, "No treatment advice available for this disease.")
+        st.info(f"**Treatment Advice:** {treatment}")
+    else:
+        st.warning("Could not detect any disease.")
